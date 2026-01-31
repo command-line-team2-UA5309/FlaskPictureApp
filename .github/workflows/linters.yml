@@ -1,0 +1,16 @@
+name: Linters
+on: [push]
+jobs:
+  markdown-lint:
+    name: Markdown lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.ref }}
+      - name: Run linter
+        uses: DavidAnson/markdownlint-cli2-action@v22
+        with:
+          fix: true
+          globs: '**/*.md'
