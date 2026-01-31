@@ -37,3 +37,5 @@ jobs:
           ref: ${{ github.ref }}
       - name: Run CSpell
         uses: streetsidesoftware/cspell-action@v8
+        with:
+          files: '**/*.{py,html}'
