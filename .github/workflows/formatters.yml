@@ -12,3 +12,15 @@ jobs:
       - uses: psf/black@stable
         with:
           options: "--check --verbose"
+  isort:
+    name: Isort
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.ref }}
+      - uses: isort/isort-action@v1
+        with:
+          configuration: "--check --verbose"
+          requirements-files: "requirements.txt"
