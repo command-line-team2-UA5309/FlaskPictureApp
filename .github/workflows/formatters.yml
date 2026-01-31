@@ -1,0 +1,14 @@
+name: Formatters
+on: [push]
+jobs:  
+  pylint:
+    name: Black
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.ref }}
+      - uses: psf/black@stable
+        with:
+          options: "--check --verbose"
