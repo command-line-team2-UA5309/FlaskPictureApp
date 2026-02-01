@@ -10,7 +10,6 @@ jobs:
       - name: Run linter
         uses: DavidAnson/markdownlint-cli2-action@v22
         with:
-          fix: true
           globs: '**/*.md'
   pylint:
     name: Pylint
