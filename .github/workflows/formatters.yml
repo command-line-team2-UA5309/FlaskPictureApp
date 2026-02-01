@@ -33,6 +33,6 @@ jobs:
       - name: Run CSpell
         uses: streetsidesoftware/cspell-action@v8
         with:
-          files: '**/*.{py,html}'
+          files: '**/*.{py,html,md}'
           incremental_files_only: false
           verbose: true
