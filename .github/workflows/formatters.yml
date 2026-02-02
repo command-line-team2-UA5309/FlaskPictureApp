@@ -1,0 +1,38 @@
+name: Formatters
+on: [push]
+jobs:  
+  black:
+    name: Black
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Run Black
+        uses: psf/black@stable
+        with:
+          options: "--check --verbose"
+  isort:
+    name: Isort
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Run Isort
+        uses: isort/isort-action@v1
+        with:
+          configuration: "--check --verbose"
+          requirements-files: "requirements.txt"
+  cspell:
+    name: CSpell
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Run CSpell
+        uses: streetsidesoftware/cspell-action@v8
+        with:
+          files: '**/*.{py,html,md}'
+          incremental_files_only: false
+          verbose: true
