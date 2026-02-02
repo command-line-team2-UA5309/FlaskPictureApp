@@ -6,7 +6,6 @@ from models import User
 
 
 def invalid_credentials(form, field):
-    """ Username and password checker """
 
     username_entered = form.username.data
     password_entered = field.data
@@ -20,7 +19,6 @@ def invalid_credentials(form, field):
 
 
 class RegistrationForm(FlaskForm):
-    """Registration form"""
 
     username = StringField('username_label',
                            validators=[InputRequired(message="Username required"),
@@ -40,7 +38,6 @@ class RegistrationForm(FlaskForm):
 
 
 class LoginFrom(FlaskForm):
-    """ Login form """
 
     username = StringField('username_label',
                            validators=[InputRequired(message="Username required!")])

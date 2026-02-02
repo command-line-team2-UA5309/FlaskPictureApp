@@ -1,12 +1,12 @@
 from flask import Flask, render_template, redirect, url_for
 from passlib.hash import pbkdf2_sha256
 from flask_login import LoginManager, login_user, current_user, logout_user
-from wtform_fields import *
+from wtform_fields import RegistrationForm, LoginFrom
 from models import db, User
-from config import SQLALCHEMY_DATABASE_URI
+from config import SQLALCHEMY_DATABASE_URI, SECRET_KEY
 
 app = Flask(__name__)
-app.secret_key = 'secret'
+app.secret_key = SECRET_KEY
 
 
 app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
@@ -19,13 +19,13 @@ login_manager.init_app(app)
 
 @login_manager.user_loader
 def load_user(user_id):
-    """ Load the user from database """
+
     return User.query.get(int(user_id))
 
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    """ Registration page """
+
     reg_form = RegistrationForm()
     if reg_form.validate_on_submit():
         username = reg_form.username.data
@@ -44,7 +44,7 @@ def index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    """ Login page """
+
     login_form =LoginFrom()
 
     # Allow login in case of success validateion
@@ -58,7 +58,7 @@ def login():
 
 @app.route('/birds', methods=['GET', 'POST'])
 def birds():
-    """ Main page with birds """
+
     if not current_user.is_authenticated:
         return 'Please login'
     return "birds images"
@@ -66,7 +66,7 @@ def birds():
 
 @app.route('/logout', methods=['GET'])
 def logout():
-    """ Log out """
+
     logout_user()
     return "Logged out!"
 
