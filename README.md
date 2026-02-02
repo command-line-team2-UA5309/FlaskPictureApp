@@ -1,4 +1,5 @@
 # FlaskPictureApp
+
 ## How to set up pre-commit hooks
 
 1. Install pre-commit from <https://pre-commit.com/#install>
