@@ -1,10 +1,15 @@
-from flask import Flask, redirect, render_template, url_for
+import uuid
+
+import boto3
+from flask import Flask, redirect, render_template, request, url_for
 from flask_login import LoginManager, current_user, login_user, logout_user
 from passlib.hash import pbkdf2_sha256
+from werkzeug.utils import secure_filename
 
-from config import SECRET_KEY, SQLALCHEMY_DATABASE_URI
-from models import User, db
-from wtform_fields import LoginFrom, RegistrationForm
+from config import (BUCKET_NAME, ENDPOINT, S3_ACCESS_KEY, S3_SECRET_KEY,
+                    SECRET_KEY, SQLALCHEMY_DATABASE_URI)
+from models import BlockedIP, Post, User, db
+from wtform_fields import LoginFrom, PostForm, RegistrationForm
 
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
@@ -44,6 +49,25 @@ def index():
     return render_template("index.html", form=reg_form)
 
 
+@app.route("/registration", methods=["GET", "POST"])
+def registration():
+
+    reg_form = RegistrationForm()
+    if reg_form.validate_on_submit():
+        username = reg_form.username.data
+        password = reg_form.password.data
+
+        hashed_pswd = pbkdf2_sha256.hash(password)
+
+        user = User(username=username, password=hashed_pswd)
+        db.session.add(user)
+        db.session.commit()
+
+        return redirect(url_for("login"))
+
+    return render_template("registration.html", form=reg_form)
+
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
 
@@ -60,10 +84,47 @@ def login():
 
 @app.route("/birds", methods=["GET", "POST"])
 def birds():
+    username = current_user.username
+    # if not current_user.is_authenticated:
+    #     return "Please login"
 
-    if not current_user.is_authenticated:
-        return "Please login"
-    return "birds images"
+    return render_template("birds.html", username=username)
+
+
+s3 = boto3.client(
+    "s3",
+    endpoint_url=ENDPOINT,
+    aws_access_key_id=S3_ACCESS_KEY,
+    aws_secret_access_key=S3_SECRET_KEY,
+)
+
+
+@app.route("/upload_post", methods=["GET", "POST"])
+def upload_post():
+
+    if request.method == "POST":
+        image = request.files["file"]
+        birdname = request.form.get("bird_name")
+        location = request.form.get("location")
+
+        if image:
+            filename = secure_filename(image.filename)
+            image.save(filename)
+
+            key = uuid.uuid4().hex + "." + filename.rsplit(".", 1)[1].lower()
+
+            s3.upload_file(Bucket=BUCKET_NAME, Filename=filename, Key=key)
+            post = Post(
+                key=key, birdname=birdname, location=location, author_id=current_user.id
+            )
+            db.session.add(post)
+            db.session.commit()
+
+            return render_template(
+                "birds.html", key=key, birdname=birdname, location=location
+            )
+
+    return render_template("upload_post.html")
 
 
 @app.route("/logout", methods=["GET"])

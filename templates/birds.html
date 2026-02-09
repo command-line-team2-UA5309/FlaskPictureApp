@@ -1,15 +1,20 @@
-{% from 'form_helper.html' import displayField %}
-
 {% extends "base.html" %}
 
 {% block title %} Registration {% endblock %}
 
 {% block content %}
     {% if current_user.is_authenticated %}
-        <p>Hello, {{ current_user.id }}</p>
-        <a href="{{ url_for('birds') }}">Birds Main Page</a>
+        <p>{{ username }}</p>
+        <a href="{{ url_for('upload_post') }}">Upload Photo</a><br>
         <a href="{{ url_for('logout') }}">Log Out</a>
     {% else %}
         <p><a href="{{ url_for('login') }}">login</a> please</p>
     {% endif %}
+
+    <div>
+        <p>images</p>
+        {{key}}
+        {{birdname}}
+        {{location}}
+    </div>
 {% endblock %}

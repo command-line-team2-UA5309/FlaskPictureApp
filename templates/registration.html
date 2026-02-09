@@ -2,26 +2,23 @@
 
 {% extends "base.html" %}
 
-{% block title %} Login {% endblock %}
+{% block title %} Registration {% endblock %}
 
 {% block content %}
-    <h1>Log in</h1>
-    <p></p>
+    <h1>Sign up</h1>
 
-    <form action="{{ login }}" method="POST">
+    <form action="{{ url_for('registration') }}", method="POST">
+
         {{ displayField(form.username, 'Username', autocomplete="off",
             autofocus=true) }}
         {{ displayField(form.password, 'Password') }}
+        {{ displayField(form.confirm_pswd, 'Confirm password') }}
 
         <div>
             {{ form.submit_button }}
         </div>
-        
 
-        {{ form.csrf_token}}
+        {{ form.csrf_token }}
+
     </form>
-
-    <div>
-        <a href="{{ url_for('registration') }}">Sign up</a>
-    </div>
 {% endblock %}

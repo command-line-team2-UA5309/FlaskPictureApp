@@ -1,0 +1,40 @@
+{% from 'form_helper.html' import displayField %}
+
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %}
+
+{% block content %}
+    <div class="card-body p-4">
+        <form method="POST" enctype="multipart/form-data" action="/upload_post">
+            <div class="mb-4">
+                <label for="formFile" class="form-label fw-bold">Select Photo</label>
+                <input type="file" name="file" value="file" required>
+                <div class="form-text">Supported formats: JPG, PNG, GIF</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Bird Name</label>
+                <div class="input-group">
+    <!--                                <span class="input-group-text bg-light"><i class="bi bi-feather"></i></span>-->
+                    <input type="text" class="form-control" name="bird_name" placeholder="e.g. Great Tit" required>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label fw-bold">Location</label>
+                <div class="input-group">
+    <!--                                <span class="input-group-text bg-light"><i class="bi bi-geo-alt-fill"></i></span>-->
+                    <input type="text" class="form-control" name="location" placeholder="e.g. Central Park" required>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="/" class="btn btn-light me-md-2">Cancel</a>
+                <button class="btn btn-success px-4" type="submit">Upload Photo</button>
+            </div>
+
+        </form>
+    </div>
+
+{% endblock %}
