@@ -8,8 +8,14 @@ from flask_login import LoginManager, current_user, login_user, logout_user
 from passlib.hash import pbkdf2_sha256
 from werkzeug.utils import secure_filename
 
-from config import (BUCKET_NAME, ENDPOINT, S3_ACCESS_KEY, S3_SECRET_KEY,
-                    SECRET_KEY, SQLALCHEMY_DATABASE_URI)
+from config import (
+    BUCKET_NAME,
+    ENDPOINT,
+    S3_ACCESS_KEY,
+    S3_SECRET_KEY,
+    SECRET_KEY,
+    SQLALCHEMY_DATABASE_URI,
+)
 from models import Post, User, db
 from wtform_fields import LoginFrom, RegistrationForm
 
@@ -26,10 +32,12 @@ login_manager = LoginManager(app)
 login_manager.init_app(app)
 
 s3 = boto3.client(
-        's3',
-        endpoint_url=ENDPOINT,
-        aws_access_key_id=S3_ACCESS_KEY,
-        aws_secret_access_key=S3_SECRET_KEY)
+    "s3",
+    endpoint_url=ENDPOINT,
+    aws_access_key_id=S3_ACCESS_KEY,
+    aws_secret_access_key=S3_SECRET_KEY,
+)
+
 
 def create_presigned_url(bucket_name, object_name, expiration=3600):
     """Generate a presigned URL to share an S3 object
@@ -44,8 +52,8 @@ def create_presigned_url(bucket_name, object_name, expiration=3600):
 
     try:
         response = s3.generate_presigned_url(
-            'get_object',
-            Params={'Bucket': bucket_name, 'Key': object_name},
+            "get_object",
+            Params={"Bucket": bucket_name, "Key": object_name},
             ExpiresIn=expiration,
         )
     except ClientError as e:
@@ -68,7 +76,7 @@ def index():
     return render_template("index.html")
 
 
-@app.route('/registration', methods=["GET", "POST"])
+@app.route("/registration", methods=["GET", "POST"])
 def registration():
 
     reg_form = RegistrationForm()
@@ -105,7 +113,7 @@ def login():
 def birds():
 
     if not current_user.is_authenticated:
-        return redirect(url_for('index'))
+        return redirect(url_for("index"))
     username = current_user.username
 
     posts = Post.query.all()
@@ -114,45 +122,43 @@ def birds():
         presigned_url = create_presigned_url(BUCKET_NAME, post.key)
         urls.append(presigned_url)
 
-    return render_template('birds.html', username=username, urls=urls)
+    return render_template("birds.html", username=username, urls=urls)
 
 
-@app.route('/upload_post', methods=['GET', 'POST'])
+@app.route("/upload_post", methods=["GET", "POST"])
 def upload_post():
 
     if not current_user.is_authenticated:
-        return redirect(url_for('index'))
+        return redirect(url_for("index"))
 
-    if request.method == 'POST':
-        image = request.files['file']
-        birdname = request.form.get('bird_name')
-        location = request.form.get('location')
+    if request.method == "POST":
+        image = request.files["file"]
+        birdname = request.form.get("bird_name")
+        location = request.form.get("location")
 
         if image:
             filename = secure_filename(image.filename)
             image.save(filename)
 
-            key = uuid.uuid4().hex + '.' + filename.rsplit('.', 1)[1].lower()
+            key = uuid.uuid4().hex + "." + filename.rsplit(".", 1)[1].lower()
 
-            s3.upload_file(
-                Bucket = BUCKET_NAME,
-                Filename = filename,
-                Key = key
+            s3.upload_file(Bucket=BUCKET_NAME, Filename=filename, Key=key)
+            post = Post(
+                key=key, birdname=birdname, location=location, author_id=current_user.id
             )
-            post = Post(key=key, birdname=birdname, location=location, author_id=current_user.id)
             db.session.add(post)
             db.session.commit()
 
-            return redirect(url_for('birds'))
+            return redirect(url_for("birds"))
 
-    return render_template('upload_post.html')
+    return render_template("upload_post.html")
 
 
 @app.route("/logout", methods=["GET"])
 def logout():
 
     logout_user()
-    return redirect(url_for('index'))
+    return redirect(url_for("index"))
 
 
 if __name__ == "__main__":
