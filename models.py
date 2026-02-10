@@ -25,6 +25,6 @@ class Post(db.Model):
 
 class BlockedIP(db.Model):
 
-    __tablename__ = 'blacklist'
+    __tablename__ = "blacklist"
     id = db.Column(db.Integer, primary_key=True)
     ip_hash = db.Column(db.String(), nullable=False)

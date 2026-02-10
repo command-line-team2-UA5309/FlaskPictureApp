@@ -1,15 +1,17 @@
-from flask import Flask, redirect, render_template, url_for, request
-from flask_login import LoginManager, current_user, login_user, logout_user
-from passlib.hash import pbkdf2_sha256
-
-from config import SECRET_KEY, SQLALCHEMY_DATABASE_URI, ENDPOINT, S3_SECRET_KEY, S3_ACCESS_KEY, BUCKET_NAME
-from models import User, Post, db
-from wtform_fields import LoginFrom, RegistrationForm
-from werkzeug.utils import secure_filename
+import logging
 import uuid
+
 import boto3
 from botocore.exceptions import ClientError
-import logging
+from flask import Flask, redirect, render_template, request, url_for
+from flask_login import LoginManager, current_user, login_user, logout_user
+from passlib.hash import pbkdf2_sha256
+from werkzeug.utils import secure_filename
+
+from config import (BUCKET_NAME, ENDPOINT, S3_ACCESS_KEY, S3_SECRET_KEY,
+                    SECRET_KEY, SQLALCHEMY_DATABASE_URI)
+from models import Post, User, db
+from wtform_fields import LoginFrom, RegistrationForm
 
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
@@ -39,7 +41,7 @@ def create_presigned_url(bucket_name, object_name, expiration=3600):
     """
 
     # Generate a presigned URL for the S3 object
-    
+
     try:
         response = s3.generate_presigned_url(
             'get_object',
@@ -53,8 +55,6 @@ def create_presigned_url(bucket_name, object_name, expiration=3600):
     # The response contains the presigned URL
     return response
 
-
-    
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -103,6 +103,7 @@ def login():
 
 @app.route("/birds", methods=["GET", "POST"])
 def birds():
+
     if not current_user.is_authenticated:
         return redirect(url_for('index'))
     username = current_user.username
@@ -118,7 +119,7 @@ def birds():
 
 @app.route('/upload_post', methods=['GET', 'POST'])
 def upload_post():
-    
+
     if not current_user.is_authenticated:
         return redirect(url_for('index'))
 
@@ -126,7 +127,7 @@ def upload_post():
         image = request.files['file']
         birdname = request.form.get('bird_name')
         location = request.form.get('location')
-        
+
         if image:
             filename = secure_filename(image.filename)
             image.save(filename)
@@ -143,7 +144,7 @@ def upload_post():
             db.session.commit()
 
             return redirect(url_for('birds'))
-        
+
     return render_template('upload_post.html')
 
 
