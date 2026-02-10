@@ -6,7 +6,7 @@
 
 {% block content %}
     {% if current_user.is_authenticated %}
-        <p>Hello, {{ current_user.id }}</p>
+        <p>Hello, {{ current_user.username }}</p>
         <a href="{{ url_for('birds') }}">Birds Main Page</a>
         <a href="{{ url_for('logout') }}">Log Out</a>
     {% else %}

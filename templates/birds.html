@@ -17,4 +17,7 @@
         {{birdname}}
         {{location}}
     </div>
+    {% for url in urls %}
+        <p><img src="{{ url }}" alt="bird photo" height="200"></p>
+    {% endfor %}
 {% endblock %}
