@@ -8,14 +8,8 @@ from flask_login import LoginManager, current_user, login_user, logout_user
 from passlib.hash import pbkdf2_sha256
 from werkzeug.utils import secure_filename
 
-from config import (
-    BUCKET_NAME,
-    ENDPOINT,
-    S3_ACCESS_KEY,
-    S3_SECRET_KEY,
-    SECRET_KEY,
-    SQLALCHEMY_DATABASE_URI,
-)
+from config import (BUCKET_NAME, ENDPOINT, S3_ACCESS_KEY, S3_SECRET_KEY,
+                    SECRET_KEY, SQLALCHEMY_DATABASE_URI)
 from models import Post, User, db
 from wtform_fields import LoginFrom, RegistrationForm
 
@@ -120,11 +114,11 @@ def birds():
     posts_data = []
     for post in posts:
         post_data = {}
-        post_data['url'] = create_presigned_url(BUCKET_NAME, post.key)
-        post_data['bird_name'] = post.birdname
-        post_data['location'] = post.location
-        post_data['id'] = post.id
-        post_data['author'] = post.author
+        post_data["url"] = create_presigned_url(BUCKET_NAME, post.key)
+        post_data["bird_name"] = post.birdname
+        post_data["location"] = post.location
+        post_data["id"] = post.id
+        post_data["author"] = post.author
         posts_data.append(post_data)
 
     return render_template("birds.html", username=username, posts_data=posts_data)
@@ -159,9 +153,9 @@ def upload_post():
     return render_template("upload_post.html")
 
 
-@app.route('/delate_post/<int:post_id>', methods=['POST'])
+@app.route("/delate_post/<int:post_id>", methods=["POST"])
 def delate_post(post_id):
-    
+
     post = Post.query.get_or_404(post_id)
     if current_user == post.author:
         s3.delete_object(Bucket=BUCKET_NAME, Key=post.key)
@@ -169,7 +163,7 @@ def delate_post(post_id):
         db.session.commit()
     else:
         return "you cant delete post made by other user"
-    return redirect(url_for('birds')) 
+    return redirect(url_for("birds"))
 
 
 @app.route("/logout", methods=["GET"])
