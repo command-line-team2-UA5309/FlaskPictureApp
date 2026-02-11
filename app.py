@@ -8,8 +8,8 @@ from flask_login import LoginManager, current_user, login_user, logout_user
 from passlib.hash import pbkdf2_sha256
 from werkzeug.utils import secure_filename
 
-from config import (BUCKET_NAME, ENDPOINT, S3_ACCESS_KEY, S3_SECRET_KEY,
-                    SECRET_KEY, SQLALCHEMY_DATABASE_URI)
+from config import BUCKET_NAME, ENDPOINT, S3_ACCESS_KEY, S3_SECRET_KEY,\
+                    SECRET_KEY, SQLALCHEMY_DATABASE_URI
 from models import Post, User, db
 from wtform_fields import LoginFrom, RegistrationForm
 
