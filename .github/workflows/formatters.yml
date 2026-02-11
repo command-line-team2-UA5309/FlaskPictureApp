@@ -20,7 +20,7 @@ jobs:
       - name: Run Isort
         uses: isort/isort-action@v1
         with:
-          configuration: "--check --verbose"
+          configuration: "--check --verbose --profile black"
           requirements-files: "requirements.txt"
   cspell:
     name: CSpell
