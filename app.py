@@ -117,12 +117,17 @@ def birds():
     username = current_user.username
 
     posts = Post.query.all()
-    urls = []
+    posts_data = []
     for post in posts:
-        presigned_url = create_presigned_url(BUCKET_NAME, post.key)
-        urls.append(presigned_url)
+        post_data = {}
+        post_data['url'] = create_presigned_url(BUCKET_NAME, post.key)
+        post_data['bird_name'] = post.birdname
+        post_data['location'] = post.location
+        post_data['id'] = post.id
+        post_data['author'] = post.author
+        posts_data.append(post_data)
 
-    return render_template("birds.html", username=username, urls=urls)
+    return render_template("birds.html", username=username, posts_data=posts_data)
 
 
 @app.route("/upload_post", methods=["GET", "POST"])
@@ -152,6 +157,19 @@ def upload_post():
             return redirect(url_for("birds"))
 
     return render_template("upload_post.html")
+
+
+@app.route('/delate_post/<int:post_id>', methods=['POST'])
+def delate_post(post_id):
+    
+    post = Post.query.get_or_404(post_id)
+    if current_user == post.author:
+        s3.delete_object(Bucket=BUCKET_NAME, Key=post.key)
+        db.session.delete(post)
+        db.session.commit()
+    else:
+        return "you cant delete post made by other user"
+    return redirect(url_for('birds')) 
 
 
 @app.route("/logout", methods=["GET"])

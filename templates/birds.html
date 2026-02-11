@@ -17,7 +17,24 @@
         {{birdname}}
         {{location}}
     </div>
-    {% for url in urls %}
-        <p><img src="{{ url }}" alt="bird photo" height="200"></p>
+    {% for data in posts_data %}
+        <div>
+            <div>
+                <img src="{{ data.get('url') }}" alt="bird photo" height="200">
+            </div>
+            <div>
+                <p>{{ data.get('bird_name') }}</p>
+            </div>
+            <div>
+                <p>{{ data.get('location') }}</p>
+            </div>
+            {% if current_user.is_authenticated and data.author == current_user %}
+            <div>
+                <form action="{{ url_for('delate_post', post_id=data.id) }}" method="POST">
+                    <button type="submit" title="Delate">Delate</button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
     {% endfor %}
 {% endblock %}
