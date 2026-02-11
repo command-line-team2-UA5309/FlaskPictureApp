@@ -1,3 +1,4 @@
+import os
 import logging
 import uuid
 
@@ -153,6 +154,7 @@ def upload_post():
             )
             db.session.add(post)
             db.session.commit()
+            os.remove(filename)
 
             return redirect(url_for("birds"))
 
