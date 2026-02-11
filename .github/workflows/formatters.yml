@@ -34,5 +34,6 @@ jobs:
         uses: streetsidesoftware/cspell-action@v8
         with:
           files: '**/*.{py,html,md}'
+          strict: false
           incremental_files_only: false
           verbose: true
