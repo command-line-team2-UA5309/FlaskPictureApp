@@ -111,7 +111,6 @@ def birds():
 
     if not current_user.is_authenticated:
         return redirect(url_for("index"))
-    username = current_user.username
 
     posts = Post.query.all()
     posts_data = []
