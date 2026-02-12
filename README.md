@@ -13,3 +13,69 @@ set -o allexport
 source .env set
 set +o allexport
 ```
+
+## Setup for local testing
+
+### Create virtual environment and install dependencies
+
+```bash
+python3 -m venv .venv
+
+. .venv/bin/activate
+
+pip install -r requirements.txt
+```
+
+### Setup database
+
+* Create db
+
+```bash
+sudo -iu postgres psql
+
+postgres=# CREATE DATABASE db_name;
+
+postgres=# CREATE USER username PASSWORD 'password';
+
+postgres=# GRANT ALL PRIVILEGES ON DATABASE db_name TO username;
+
+postgres=# ALTER DATABASE db_name OWNER TO user;
+```
+
+* Run script for setup tables in db
+
+```bash
+python3 init_tables.py 
+```
+
+### Setup S3 compatible storage
+
+* Install SeaweedFS
+
+```bash
+cd /tmp
+
+# If arm install this one
+wget https://github.com/seaweedfs/seaweedfs/releases/download/4.09/linux_arm64.tar.gz
+
+# If x86 install this one
+wget https://github.com/seaweedfs/seaweedfs/releases/download/4.12/linux_amd64.tar.gz
+
+sudo mv weed /usr/local/bin/weed
+```
+
+* Starting server
+
+```bash
+sudo weed mini -dir=/data -s3 -ip.bind 0.0.0.0 -ip your_mashine_ip
+```
+
+* Info about setting up bucket you can find here:
+[SeaweedFS config credentials](https://hub.relution.io/en/docs/installation/object-storage/seaweedfs/)
+on step 3
+
+### Run application
+
+```bash
+python3 app.py
+```

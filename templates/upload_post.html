@@ -1,0 +1,37 @@
+{% from 'form_helper.html' import displayField %}
+
+{% extends "base.html" %}
+
+{% block title %} Login {% endblock %}
+
+{% block content %}
+    <div>
+        <form method="POST" enctype="multipart/form-data" action="/upload_post">
+            <div>
+                <label for="formFile">Select Photo</label>
+                <input type="file" name="file" value="file" required>
+            </div>
+
+            <div>
+                <label>Bird Name</label>
+                <div>
+                    <input type="text" class="form-control" name="bird_name" placeholder="Name" required>
+                </div>
+            </div>
+
+            <div>
+                <label>Location</label>
+                <div>
+                    <input type="text" name="location" placeholder="location" required>
+                </div>
+            </div>
+
+            <div>
+                <a href="/">Cancel</a>
+                <button type="submit">Upload Photo</button>
+            </div>
+
+        </form>
+    </div>
+
+{% endblock %}

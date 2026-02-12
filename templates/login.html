@@ -16,7 +16,12 @@
         <div>
             {{ form.submit_button }}
         </div>
+        
 
         {{ form.csrf_token}}
     </form>
+
+    <div>
+        <a href="{{ url_for('registration') }}">Sign up</a>
+    </div>
 {% endblock %}
