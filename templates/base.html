@@ -17,6 +17,9 @@
                 <ul class="navbar-nav flex-row">
                     {% if current_user.is_authenticated %}
                         <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('birds') }}">Birds Main Page</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('upload_post') }}">Upload Photo</a>
                         </li>
                     {% endif %}
