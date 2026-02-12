@@ -124,7 +124,7 @@ def birds():
         post_data["author"] = post.author
         posts_data.append(post_data)
 
-    return render_template("birds.html", username=username, posts_data=posts_data)
+    return render_template("birds.html", posts_data=posts_data)
 
 
 @app.route("/upload_post", methods=["GET", "POST"])
