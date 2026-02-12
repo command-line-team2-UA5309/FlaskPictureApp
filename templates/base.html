@@ -10,9 +10,18 @@
 <header>
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url_for('index') }}">
-                <span>BirdWatch</span>
-            </a>
+            <div class="d-flex align-items-center">
+                <a class="navbar-brand" href="{{ url_for('index') }}">
+                    <span>BirdWatch</span>
+                </a>
+                <ul class="navbar-nav flex-row">
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('upload_post') }}">Upload Photo</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
             <div>
                 <ul class="navbar-nav">
                     {% if current_user.is_authenticated %}
