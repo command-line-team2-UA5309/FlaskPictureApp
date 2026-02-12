@@ -122,7 +122,7 @@ def birds():
         post_data["location"] = post.location
         post_data["id"] = post.id
         post_data["author"] = post.author
-        post_data["likes"] = post.likes #
+        post_data["likes"] = post.likes  #
         posts_data.append(post_data)
 
     return render_template("birds.html", username=username, posts_data=posts_data)
@@ -170,12 +170,12 @@ def delete_post(post_id):
     return redirect(url_for("birds"))
 
 
-@app.route("/like/<int:post_id>", methods=['POST'])
+@app.route("/like/<int:post_id>", methods=["POST"])
 def like_post(post_id):
 
     if not current_user.is_authenticated:
         return redirect(url_for("index"))
-    
+
     post = Post.query.get_or_404(post_id)
     if post in current_user.liked_posts:
         post.likes.remove(current_user)
@@ -183,7 +183,7 @@ def like_post(post_id):
     else:
         post.likes.append(current_user)
         db.session.commit()
-    return redirect(url_for('birds'))
+    return redirect(url_for("birds"))
 
 
 @app.route("/logout", methods=["GET"])
