@@ -9,8 +9,7 @@
 
     <form action="{{ url_for('registration') }}", method="POST">
 
-        {{ displayField(form.username, 'Username', autocomplete="off",
-            autofocus=true) }}
+        {{ displayField(form.username, 'Username', autocomplete="off", autofocus=true) }}
         {{ displayField(form.password, 'Password') }}
         {{ displayField(form.confirm_pswd, 'Confirm password') }}
 
