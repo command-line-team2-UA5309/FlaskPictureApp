@@ -1,13 +1,14 @@
 {% macro displayField(fieldName, placeholderValue) %}
 
-<div>
-    {{ fieldName(class_='form_control', placeholder=placeholderValue,
-        **kwargs) }}
+<div class="mb-3">
+    {{ fieldName(class_='form-control', placeholder=placeholderValue, **kwargs) }}
 
-        <ul>
+    {% if fieldName.errors %}
+        <div class="form-text text-danger mt-1">
             {% for error in fieldName.errors %}
-                <li>{{ error }}</li>
+                <small>{{ error }}</small>{% if not loop.last %}<br>{% endif %}
             {% endfor %}
-        </ul>
+        </div>
+    {% endif %}
 </div>
 {% endmacro %}

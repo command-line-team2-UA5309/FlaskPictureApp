@@ -5,23 +5,24 @@
 {% block title %} Login {% endblock %}
 
 {% block content %}
-    <h1>Log in</h1>
-    <p></p>
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-5 col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="card-title text-center mb-4">Log In</h2>
 
-    <form action="{{ login }}" method="POST">
-        {{ displayField(form.username, 'Username', autocomplete="off",
-            autofocus=true) }}
-        {{ displayField(form.password, 'Password') }}
+                    <form action="{{ login }}" method="POST">
+                        {{ displayField(form.username, 'Username', autocomplete="off", autofocus=true) }}
+                        {{ displayField(form.password, 'Password') }}
 
-        <div>
-            {{ form.submit_button }}
+                        <div class="d-grid gap-2 mt-3">
+                            {{ form.submit_button(class="btn btn-primary") }}
+                        </div>
+
+                        {{ form.csrf_token }}
+                    </form>
+                </div>
+            </div>
         </div>
-        
-
-        {{ form.csrf_token}}
-    </form>
-
-    <div>
-        <a href="{{ url_for('registration') }}">Sign up</a>
     </div>
 {% endblock %}
