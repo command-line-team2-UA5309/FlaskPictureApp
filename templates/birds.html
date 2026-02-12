@@ -14,13 +14,17 @@
                             <i class="bi"></i> {{ data.get('location') }}
                         </p>
                     </div>
-                    {% if current_user.is_authenticated and data.author == current_user %}
-                        <div class="card-footer bg-transparent border-0">
+                    <div class="card-footer bg-transparent border-0">
+                        <span>{{ data.get('likes')|length }}</span>
+                        <form action="{{ url_for('like_post', post_id=data.id) }}" method="POST">
+                            <button type="submit" title="Like">Like</button>
+                        </form>
+                        {% if current_user.is_authenticated and data.author == current_user %}
                             <form action="{{ url_for('delete_post', post_id=data.id) }}" method="POST">
                                 <button type="submit" class="btn btn-outline-danger btn-sm" title="Delete">Delete</button>
                             </form>
-                        </div>
-                    {% endif %}
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         {% endfor %}
