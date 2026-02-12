@@ -36,7 +36,8 @@ s3 = boto3.client(
     "s3",
     endpoint_url=ENDPOINT,
     aws_access_key_id=S3_ACCESS_KEY,
-    aws_secret_access_key=S3_SECRET_KEY,)
+    aws_secret_access_key=S3_SECRET_KEY,
+)
 
 
 def create_presigned_url(bucket_name, object_name, expiration=3600):
@@ -156,7 +157,7 @@ def upload_post():
     return render_template("upload_post.html")
 
 
-@app.route("/delete_post/<int:post_id>", methods=['POST'])
+@app.route("/delete_post/<int:post_id>", methods=["POST"])
 def delete_post(post_id):
 
     post = Post.query.get_or_404(post_id)
