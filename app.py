@@ -20,7 +20,6 @@ from config import (
 from models import Post, User, db
 from wtform_fields import LoginFrom, RegistrationForm
 
-
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
 
