@@ -3,6 +3,11 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
+likes = db.Table(
+    "likes",
+    db.Column("user_id", db.Integer, db.ForeignKey('users.id')),
+    db.Column("post_id", db.Integer, db.ForeignKey('posts.id'))
+)
 
 class User(UserMixin, db.Model):
     __tablename__ = "users"
@@ -19,3 +24,4 @@ class Post(db.Model):
     birdname = db.Column(db.String(50), nullable=False)
     location = db.Column(db.String(50), nullable=False)
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    likes = db.relationship('User', secondary=likes, backref='liked_posts')
