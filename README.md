@@ -44,7 +44,7 @@ postgres=# ALTER DATABASE db_name OWNER TO user;
 
 * Run script for setup tables in db
 
-```
+```bash
 python3 init_tables.py 
 ```
 
@@ -52,7 +52,7 @@ python3 init_tables.py
 
 * Install SeaweedFS
 
-```
+```bash
 cd /tmp
 
 # If arm install this one
@@ -66,14 +66,16 @@ sudo mv weed /usr/local/bin/weed
 
 * Starting server
 
-```
-sudo weed mini -dir=/images -s3 -ip.bind 0.0.0.0 -ip your_mashine_ip
+```bash
+sudo weed mini -dir=/data -s3 -ip.bind 0.0.0.0 -ip your_mashine_ip
 ```
 
-* Info about setting up bucket you can find [here](https://hub.relution.io/en/docs/installation/object-storage/seaweedfs/) on step 3
+* Info about setting up bucket you can find here:
+[SeaweedFS config credentials](https://hub.relution.io/en/docs/installation/object-storage/seaweedfs/)
+on step 3
 
 ### Run application
 
-```
+```bash
 python3 app.py
 ```
