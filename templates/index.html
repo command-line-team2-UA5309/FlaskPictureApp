@@ -1,15 +1,29 @@
-{% from 'form_helper.html' import displayField %}
-
 {% extends "base.html" %}
 
-{% block title %} User page {% endblock %}
+{% block title %} Home - BirdWatch {% endblock %}
 
 {% block content %}
-    {% if current_user.is_authenticated %}
-        <p>Hello, {{ current_user.username }}</p>
-        <a href="{{ url_for('birds') }}">Birds Main Page</a>
-        <a href="{{ url_for('logout') }}">Log Out</a>
-    {% else %}
-        <p><a href="{{ url_for('login') }}">login</a> please</p>
-    {% endif %}
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="text-center mb-5">
+                <h1 class="display-4 mb-3">Welcome to BirdWatch</h1>
+                <p class="lead">Discover, share, and explore bird sightings from around the world</p>
+            </div>
+
+            <div class="card border-0 mb-4">
+                <div class="card-body p-4">
+                    <h2 class="h4 mb-3">About BirdWatch</h2>
+                    <p class="mb-3">
+                        BirdWatch is a community-driven platform where bird enthusiasts can document and share their
+                        bird encounters. Whether you're an experienced ornithologist or just starting out, here is the
+                        place to meet other birdwatchers.
+                    </p>
+                    <p class="mb-0">
+                        Upload your bird images with the location where you took the photo and view an ever-growing
+                        collection of stunning bird sightings submitted by our community members.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

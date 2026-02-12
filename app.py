@@ -111,7 +111,6 @@ def birds():
 
     if not current_user.is_authenticated:
         return redirect(url_for("index"))
-    username = current_user.username
 
     posts = Post.query.all()
     posts_data = []
@@ -125,7 +124,7 @@ def birds():
         post_data["likes"] = post.likes  #
         posts_data.append(post_data)
 
-    return render_template("birds.html", username=username, posts_data=posts_data)
+    return render_template("birds.html", posts_data=posts_data)
 
 
 @app.route("/upload_post", methods=["GET", "POST"])
