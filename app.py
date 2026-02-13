@@ -17,8 +17,8 @@ from config import (
     SECRET_KEY,
     SQLALCHEMY_DATABASE_URI,
 )
-from models import Post, User, db
-from wtform_fields import LoginFrom, RegistrationForm
+from models import BlockedIP, Post, User, db
+from wtform_fields import BlockIPForm, LoginFrom, RegistrationForm
 
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
@@ -38,6 +38,16 @@ s3 = boto3.client(
     aws_access_key_id=S3_ACCESS_KEY,
     aws_secret_access_key=S3_SECRET_KEY,
 )
+
+
+@app.before_request
+def is_in_blacklist():
+    blocked_ip = BlockedIP.query.filter_by(ip_hash=request.remote_addr).first()
+    if blocked_ip is not None:
+        return redirect(
+            "https://kodeksy.com.ua/kriminal_nij_kodeks_ukraini/statja-248.htm"
+        )
+    return None
 
 
 def create_presigned_url(bucket_name, object_name, expiration=3600):
@@ -122,7 +132,7 @@ def birds():
         post_data["location"] = post.location
         post_data["id"] = post.id
         post_data["author"] = post.author
-        post_data["likes"] = post.likes  #
+        post_data["likes"] = post.likes
         posts_data.append(post_data)
 
     return render_template("birds.html", username=username, posts_data=posts_data)
@@ -191,6 +201,27 @@ def logout():
 
     logout_user()
     return redirect(url_for("index"))
+
+
+@app.route("/blacklist", methods=["GET", "POST"])
+def add_to_blacklist():
+    ip_form = BlockIPForm()
+    if ip_form.validate_on_submit():
+        ip = ip_form.ip.data
+
+        blocked_ip = BlockedIP(ip_hash=ip)
+        db.session.add(blocked_ip)
+        db.session.commit()
+
+        return redirect(url_for("birds"))
+    return render_template("block_ip.html", form=ip_form)
+
+
+@app.route("/get_user_ip", methods=["GET"])
+def get_ip():
+    blacklist = 1
+
+    return str(blacklist)
 
 
 if __name__ == "__main__":

@@ -6,6 +6,7 @@
     {% if current_user.is_authenticated %}
         <p>{{ username }}</p>
         <a href="{{ url_for('upload_post') }}">Upload Photo</a><br>
+        <a href="{{ url_for('add_to_blacklist') }}">Block Poacher</a><br>
         <a href="{{ url_for('logout') }}">Log Out</a>
     {% else %}
         <p><a href="{{ url_for('login') }}">login</a> please</p>

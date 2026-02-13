@@ -26,3 +26,9 @@ class Post(db.Model):
     location = db.Column(db.String(50), nullable=False)
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     likes = db.relationship("User", secondary=likes, backref="liked_posts")
+
+
+class BlockedIP(db.Model):
+    __tablename__ = "blacklist"
+    id = db.Column(db.Integer, primary_key=True)
+    ip_hash = db.Column(db.String(), nullable=False)
