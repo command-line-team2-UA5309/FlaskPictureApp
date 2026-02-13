@@ -5,19 +5,25 @@
 {% block title %} Registration {% endblock %}
 
 {% block content %}
-    <h1>Sign up</h1>
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-5 col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="card-title text-center mb-4">Sign Up</h2>
 
-    <form action="{{ url_for('registration') }}", method="POST">
+                    <form action="{{ url_for('registration') }}" method="POST">
+                        {{ displayField(form.username, 'Username', autocomplete="off", autofocus=true) }}
+                        {{ displayField(form.password, 'Password') }}
+                        {{ displayField(form.confirm_pswd, 'Confirm password') }}
 
-        {{ displayField(form.username, 'Username', autocomplete="off", autofocus=true) }}
-        {{ displayField(form.password, 'Password') }}
-        {{ displayField(form.confirm_pswd, 'Confirm password') }}
+                        <div class="d-grid gap-2 mt-3">
+                            {{ form.submit_button(class="btn btn-primary") }}
+                        </div>
 
-        <div>
-            {{ form.submit_button }}
+                        {{ form.csrf_token }}
+                    </form>
+                </div>
+            </div>
         </div>
-
-        {{ form.csrf_token }}
-
-    </form>
+    </div>
 {% endblock %}

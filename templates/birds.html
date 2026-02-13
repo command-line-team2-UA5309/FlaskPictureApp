@@ -3,39 +3,38 @@
 {% block title %} Birds {% endblock %}
 
 {% block content %}
-    {% if current_user.is_authenticated %}
-        <p>{{ username }}</p>
-        <a href="{{ url_for('upload_post') }}">Upload Photo</a><br>
-        <a href="{{ url_for('add_to_blacklist') }}">Block Poacher</a><br>
-        <a href="{{ url_for('logout') }}">Log Out</a>
-    {% else %}
-        <p><a href="{{ url_for('login') }}">login</a> please</p>
-    {% endif %}
-
-    {% for data in posts_data %}
-        <div>
-            <div>
-                <img src="{{ data.get('url') }}" alt="bird photo" height="200">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for data in posts_data %}
+            <div class="col">
+                <div class="card h-100">
+                    <img src="{{ data.get('url') }}" class="card-img-top" alt="bird photo"
+                         style="height: 200px; object-fit: contain;">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ data.get('bird_name') }}</h5>
+                        <p class="card-text">
+                            <i class="bi"></i> {{ data.get('location') }}
+                        </p>
+                    </div>
+                    <div class="card-footer bg-transparent border-0">
+                        <div class="d-flex align-items-center gap-2">
+                            <form action="{{ url_for('like_post', post_id=data.id) }}" method="POST" class="d-inline">
+                                <button type="submit" class="btn btn-outline-primary btn-sm" title="Like">
+                                    <i class="bi bi-heart"></i> Like
+                                </button>
+                            </form>
+                            <span class="badge bg-secondary">{{ data.get('likes')|length }}</span>
+                            {% if current_user.is_authenticated and data.author == current_user %}
+                                <form action="{{ url_for('delete_post', post_id=data.id) }}" method="POST"
+                                      class="d-inline ms-auto">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm" title="Delete">
+                                        Delete
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div>
-                <p>{{ data.get('bird_name') }}</p>
-            </div>
-            <div>
-                <p>{{ data.get('location') }}</p>
-            </div>
-            {% if current_user.is_authenticated and data.author == current_user %}
-            <div>
-                <form action="{{ url_for('delete_post', post_id=data.id) }}" method="POST">
-                    <button type="submit" title="Delete">Delete</button>
-                </form>
-            </div>
-            {% endif %}
-            <div>
-                <span>{{ data.get('likes')|length }}</span>
-                <form action="{{ url_for('like_post', post_id=data.id)}}" method="POST">
-                    <button type="submit" title="Like">Like</button>
-                </form>
-            </div>
-        </div>
-    {% endfor %}
+        {% endfor %}
+    </div>
 {% endblock %}
