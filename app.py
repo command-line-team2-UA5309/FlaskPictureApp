@@ -232,13 +232,18 @@ def view_post(post_id):
     return render_template("bird.html", post_data=post_data)
 
 
-@app.route("/birds/decrypted/<int:post_id>", methods=["POST"])
+@app.route("/birds/decrypted/<int:post_id>", methods=["GET", "POST"])
 def decrypt_location(post_id):
 
     if not current_user.is_authenticated:
         return redirect(url_for("index"))
 
     post = Post.query.get_or_404(post_id)
+
+    # Redirect users to view_post endpoint if like button is pressed on
+    # decrypt_location page
+    if request.method == "GET":
+        return redirect(url_for("view_post", post_id=post_id))
 
     if post.password is None:
         return redirect(request.referrer)
