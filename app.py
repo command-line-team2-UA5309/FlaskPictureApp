@@ -157,13 +157,14 @@ def birds():
     posts = Post.query.all()
     posts_data = []
     for post in posts:
-        post_data = {}
-        post_data["url"] = create_presigned_url(BUCKET_NAME, post.key)
-        post_data["bird_name"] = post.birdname
-        post_data["location"] = post.location
-        post_data["id"] = post.id
-        post_data["author"] = post.author
-        post_data["likes"] = post.likes  #
+        post_data = {
+            "url": create_presigned_url(BUCKET_NAME, post.key),
+            "bird_name": post.birdname,
+            "location": "**********" if post.password is not None else post.location,
+            "id": post.id,
+            "author": post.author,
+            "likes": post.likes,
+        }
         posts_data.append(post_data)
 
     return render_template("birds.html", posts_data=posts_data)
