@@ -212,6 +212,25 @@ def upload_post():
     return render_template("upload_post.html")
 
 
+@app.route("/birds/<int:post_id>", methods=["GET"])
+def view_post(post_id):
+
+    if not current_user.is_authenticated:
+        return redirect(url_for("index"))
+
+    post = Post.query.get_or_404(post_id)
+    post_data = {
+        "url": create_presigned_url(BUCKET_NAME, post.key),
+        "bird_name": post.birdname,
+        "location": "**********" if post.password is not None else post.location,
+        "id": post.id,
+        "author": post.author,
+        "likes": post.likes,
+    }
+
+    return render_template("bird.html", post_data=post_data)
+
+
 @app.route("/delete_post/<int:post_id>", methods=["POST"])
 def delete_post(post_id):
 
@@ -237,7 +256,7 @@ def like_post(post_id):
     else:
         post.likes.append(current_user)
         db.session.commit()
-    return redirect(url_for("birds"))
+    return redirect(request.referrer)
 
 
 @app.route("/logout", methods=["GET"])
