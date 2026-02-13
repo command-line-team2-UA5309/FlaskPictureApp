@@ -13,6 +13,22 @@
                     <p class="card-text">
                         <i class="bi"></i> <strong>Location:</strong> {{ post_data.location }}
                     </p>
+                    {% if post_data.is_encrypted %}
+                        <div class="mb-3">
+                            <form action="{{ url_for('decrypt_location', post_id=post_data.id) }}" method="POST">
+                                <label for="password" class="form-label">
+                                    <strong>Enter password to view location:</strong>
+                                </label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="password" name="password"
+                                           placeholder="Enter password" required>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi"></i> Decrypt
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    {% endif %}
                     <p class="card-text">
                         <i class="bi"></i> <strong>Posted by:</strong> {{ post_data.author.username }}
                     </p>

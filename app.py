@@ -184,7 +184,7 @@ def upload_post():
 
         # Encrypt location and hash password if password is entered
         if password:
-            location = encrypt_data(location.encode(), password)
+            location = encrypt_data(location.encode(), password).decode()
             password = pbkdf2_sha256.hash(request.form.get("password"))
         else:
             password = None
@@ -223,6 +223,35 @@ def view_post(post_id):
         "url": create_presigned_url(BUCKET_NAME, post.key),
         "bird_name": post.birdname,
         "location": "**********" if post.password is not None else post.location,
+        "id": post.id,
+        "author": post.author,
+        "likes": post.likes,
+        "is_encrypted": post.password is not None,
+    }
+
+    return render_template("bird.html", post_data=post_data)
+
+
+@app.route("/birds/decrypted/<int:post_id>", methods=["POST"])
+def decrypt_location(post_id):
+
+    if not current_user.is_authenticated:
+        return redirect(url_for("index"))
+
+    post = Post.query.get_or_404(post_id)
+
+    if post.password is None:
+        return redirect(request.referrer)
+
+    if not pbkdf2_sha256.verify(request.form.get("password"), post.password):
+        return redirect(request.referrer)
+
+    post_data = {
+        "url": create_presigned_url(BUCKET_NAME, post.key),
+        "bird_name": post.birdname,
+        "location": decrypt_data(
+            post.location.encode(), request.form.get("password")
+        ).decode(),
         "id": post.id,
         "author": post.author,
         "likes": post.likes,
