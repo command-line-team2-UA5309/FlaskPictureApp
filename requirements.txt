@@ -4,6 +4,7 @@ boto3==1.42.44
 botocore==1.42.44
 cfgv==3.5.0
 click==8.3.1
+cryptography==46.0.5
 dill==0.4.1
 distlib==0.4.0
 filelock==3.20.3

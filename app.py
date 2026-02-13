@@ -1,9 +1,16 @@
 import logging
 import os
+import secrets
 import uuid
+from base64 import urlsafe_b64decode as b64d
+from base64 import urlsafe_b64encode as b64e
 
 import boto3
 from botocore.exceptions import ClientError
+from cryptography.fernet import Fernet
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from flask import Flask, redirect, render_template, request, url_for
 from flask_login import LoginManager, current_user, login_user, logout_user
 from passlib.hash import pbkdf2_sha256
@@ -60,6 +67,41 @@ def create_presigned_url(bucket_name, object_name, expiration=3600):
         return None
 
     return response
+
+
+def derive_key(password: bytes, salt: bytes, iterations: int = 210_000) -> bytes:
+    """Derive a secret key from a given password and salt"""
+    kdf = PBKDF2HMAC(
+        algorithm=hashes.SHA512(),
+        length=32,
+        salt=salt,
+        iterations=iterations,
+        backend=default_backend(),
+    )
+    return b64e(kdf.derive(password))
+
+
+def encrypt_data(message: bytes, password: str, iterations: int = 210_000) -> bytes:
+    """Encrypt data using generated secret key"""
+    salt = secrets.token_bytes(16)
+    key = derive_key(password.encode(), salt, iterations)
+    return b64e(
+        b"%b%b%b"
+        % (
+            salt,
+            iterations.to_bytes(4, "big"),
+            b64d(Fernet(key).encrypt(message)),
+        )
+    )
+
+
+def decrypt_data(token: bytes, password: str) -> bytes:
+    """Decrypt data using generated secret key"""
+    decoded = b64d(token)
+    salt, iteration, token = decoded[:16], decoded[16:20], b64e(decoded[20:])
+    iterations = int.from_bytes(iteration)
+    key = derive_key(password.encode(), salt, iterations)
+    return Fernet(key).decrypt(token)
 
 
 @login_manager.user_loader
@@ -137,6 +179,14 @@ def upload_post():
         image = request.files["file"]
         birdname = request.form.get("bird_name")
         location = request.form.get("location")
+        password = request.form.get("password")
+
+        # Encrypt location and hash password if password is entered
+        if password:
+            location = encrypt_data(location.encode(), password)
+            password = pbkdf2_sha256.hash(request.form.get("password"))
+        else:
+            password = None
 
         if image:
             filename = secure_filename(image.filename)
@@ -146,7 +196,11 @@ def upload_post():
 
             s3.upload_file(Bucket=BUCKET_NAME, Filename=filename, Key=key)
             post = Post(
-                key=key, birdname=birdname, location=location, author_id=current_user.id
+                key=key,
+                birdname=birdname,
+                location=location,
+                author_id=current_user.id,
+                password=password,
             )
             db.session.add(post)
             db.session.commit()
