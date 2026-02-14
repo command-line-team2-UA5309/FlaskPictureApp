@@ -1,0 +1,20 @@
+{% from 'form_helper.html' import displayField %}
+
+{% extends "base.html" %}
+
+{% block title %} Block Poacher {% endblock %}
+
+{% block content %}
+    <h1>Block Bad IP</h1>
+
+    <form action="{{url_for('add_to_blacklist') }}" method="POST">
+        {{ displayField(form.ip, 'IP') }}
+
+        <div>
+            {{ form.submit_button }}
+        </div>
+        
+
+        {{ form.csrf_token}}
+    </form>
+{% endblock %}

@@ -1,3 +1,4 @@
+import hashlib
 import logging
 import os
 import secrets
@@ -24,8 +25,8 @@ from config import (
     SECRET_KEY,
     SQLALCHEMY_DATABASE_URI,
 )
-from models import Post, User, db
-from wtform_fields import LoginFrom, RegistrationForm
+from models import BlockedIP, Post, User, db
+from wtform_fields import BlockIPForm, LoginFrom, RegistrationForm
 
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
@@ -45,6 +46,20 @@ s3 = boto3.client(
     aws_access_key_id=S3_ACCESS_KEY,
     aws_secret_access_key=S3_SECRET_KEY,
 )
+
+
+def create_ip_hash(ip):
+    ip_hash = hashlib.sha256(ip.encode())
+    return ip_hash.hexdigest()
+
+
+@app.before_request
+def is_in_blacklist():
+    ip_hash = create_ip_hash(str(request.remote_addr))
+    blocked_ip = BlockedIP.query.filter_by(ip_hash=ip_hash).first()
+    if blocked_ip is not None:
+        return redirect("https://zakon.rada.gov.ua/laws/show/2341-14/page11#Text")
+    return None
 
 
 def create_presigned_url(bucket_name, object_name, expiration=3600):
@@ -298,6 +313,27 @@ def logout():
 
     logout_user()
     return redirect(url_for("index"))
+
+
+@app.route("/blacklist", methods=["GET", "POST"])
+def add_to_blacklist():
+    ip_form = BlockIPForm()
+    if ip_form.validate_on_submit():
+        ip_hash = create_ip_hash(str(request.remote_addr))
+
+        blocked_ip = BlockedIP(ip_hash=ip_hash)
+        db.session.add(blocked_ip)
+        db.session.commit()
+
+        return redirect(url_for("birds"))
+    return render_template("block_ip.html", form=ip_form)
+
+
+@app.route("/get_user_ip", methods=["GET"])
+def get_ip():
+    blacklist = 1
+
+    return str(blacklist)
 
 
 if __name__ == "__main__":
