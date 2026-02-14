@@ -5,16 +5,23 @@
 {% block title %} Block Poacher {% endblock %}
 
 {% block content %}
-    <h1>Block Bad IP</h1>
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-5 col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="card-title text-center mb-4">Block Bad IP</h2>
 
-    <form action="{{url_for('add_to_blacklist') }}" method="POST">
-        {{ displayField(form.ip, 'IP') }}
+                    <form action="{{ url_for('add_to_blacklist') }}" method="POST">
+                        {{ displayField(form.ip, 'IP Address', autocomplete="off", autofocus=true) }}
 
-        <div>
-            {{ form.submit_button }}
+                        <div class="d-grid gap-2 mt-3">
+                            {{ form.submit_button(class="btn btn-primary") }}
+                        </div>
+
+                        {{ form.csrf_token }}
+                    </form>
+                </div>
+            </div>
         </div>
-        
-
-        {{ form.csrf_token}}
-    </form>
+    </div>
 {% endblock %}
