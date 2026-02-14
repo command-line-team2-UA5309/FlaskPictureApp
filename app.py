@@ -52,7 +52,7 @@ def is_in_blacklist():
     blocked_ip = BlockedIP.query.filter_by(ip_hash=ip_hash).first()
     if blocked_ip is not None:
         return redirect(
-            "https://kodeksy.com.ua/kriminal_nij_kodeks_ukraini/statja-248.htm"
+            "https://zakon.rada.gov.ua/laws/show/2341-14/page11#Text"
         )
     return None
 
