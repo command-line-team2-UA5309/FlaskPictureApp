@@ -23,7 +23,8 @@ class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     key = db.Column(db.String, nullable=False)
     birdname = db.Column(db.String(50), nullable=False)
-    location = db.Column(db.String(50), nullable=False)
+    location = db.Column(db.String(), nullable=False)
+    password = db.Column(db.String(), nullable=True)
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     likes = db.relationship("User", secondary=likes, backref="liked_posts")
 

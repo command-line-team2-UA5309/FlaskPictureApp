@@ -1,10 +1,17 @@
 import hashlib
 import logging
 import os
+import secrets
 import uuid
+from base64 import urlsafe_b64decode as b64d
+from base64 import urlsafe_b64encode as b64e
 
 import boto3
 from botocore.exceptions import ClientError
+from cryptography.fernet import Fernet
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from flask import Flask, redirect, render_template, request, url_for
 from flask_login import LoginManager, current_user, login_user, logout_user
 from passlib.hash import pbkdf2_sha256
@@ -77,6 +84,41 @@ def create_presigned_url(bucket_name, object_name, expiration=3600):
     return response
 
 
+def derive_key(password: bytes, salt: bytes, iterations: int = 210_000) -> bytes:
+    """Derive a secret key from a given password and salt"""
+    kdf = PBKDF2HMAC(
+        algorithm=hashes.SHA512(),
+        length=32,
+        salt=salt,
+        iterations=iterations,
+        backend=default_backend(),
+    )
+    return b64e(kdf.derive(password))
+
+
+def encrypt_data(message: bytes, password: str, iterations: int = 210_000) -> bytes:
+    """Encrypt data using generated secret key"""
+    salt = secrets.token_bytes(16)
+    key = derive_key(password.encode(), salt, iterations)
+    return b64e(
+        b"%b%b%b"
+        % (
+            salt,
+            iterations.to_bytes(4, "big"),
+            b64d(Fernet(key).encrypt(message)),
+        )
+    )
+
+
+def decrypt_data(token: bytes, password: str) -> bytes:
+    """Decrypt data using generated secret key"""
+    decoded = b64d(token)
+    salt, iteration, token = decoded[:16], decoded[16:20], b64e(decoded[20:])
+    iterations = int.from_bytes(iteration)
+    key = derive_key(password.encode(), salt, iterations)
+    return Fernet(key).decrypt(token)
+
+
 @login_manager.user_loader
 def load_user(user_id):
 
@@ -130,13 +172,14 @@ def birds():
     posts = Post.query.all()
     posts_data = []
     for post in posts:
-        post_data = {}
-        post_data["url"] = create_presigned_url(BUCKET_NAME, post.key)
-        post_data["bird_name"] = post.birdname
-        post_data["location"] = post.location
-        post_data["id"] = post.id
-        post_data["author"] = post.author
-        post_data["likes"] = post.likes
+        post_data = {
+            "url": create_presigned_url(BUCKET_NAME, post.key),
+            "bird_name": post.birdname,
+            "location": "**********" if post.password is not None else post.location,
+            "id": post.id,
+            "author": post.author,
+            "likes": post.likes,
+        }
         posts_data.append(post_data)
 
     return render_template("birds.html", posts_data=posts_data)
@@ -152,6 +195,14 @@ def upload_post():
         image = request.files["file"]
         birdname = request.form.get("bird_name")
         location = request.form.get("location")
+        password = request.form.get("password")
+
+        # Encrypt location and hash password if password is entered
+        if password:
+            location = encrypt_data(location.encode(), password).decode()
+            password = pbkdf2_sha256.hash(request.form.get("password"))
+        else:
+            password = None
 
         if image:
             filename = secure_filename(image.filename)
@@ -161,7 +212,11 @@ def upload_post():
 
             s3.upload_file(Bucket=BUCKET_NAME, Filename=filename, Key=key)
             post = Post(
-                key=key, birdname=birdname, location=location, author_id=current_user.id
+                key=key,
+                birdname=birdname,
+                location=location,
+                author_id=current_user.id,
+                password=password,
             )
             db.session.add(post)
             db.session.commit()
@@ -170,6 +225,59 @@ def upload_post():
             return redirect(url_for("birds"))
 
     return render_template("upload_post.html")
+
+
+@app.route("/birds/<int:post_id>", methods=["GET"])
+def view_post(post_id):
+
+    if not current_user.is_authenticated:
+        return redirect(url_for("index"))
+
+    post = Post.query.get_or_404(post_id)
+    post_data = {
+        "url": create_presigned_url(BUCKET_NAME, post.key),
+        "bird_name": post.birdname,
+        "location": "**********" if post.password is not None else post.location,
+        "id": post.id,
+        "author": post.author,
+        "likes": post.likes,
+        "is_encrypted": post.password is not None,
+    }
+
+    return render_template("bird.html", post_data=post_data)
+
+
+@app.route("/birds/decrypted/<int:post_id>", methods=["GET", "POST"])
+def decrypt_location(post_id):
+
+    if not current_user.is_authenticated:
+        return redirect(url_for("index"))
+
+    post = Post.query.get_or_404(post_id)
+
+    # Redirect users to view_post endpoint if like button is pressed on
+    # decrypt_location page
+    if request.method == "GET":
+        return redirect(url_for("view_post", post_id=post_id))
+
+    if post.password is None:
+        return redirect(request.referrer)
+
+    if not pbkdf2_sha256.verify(request.form.get("password"), post.password):
+        return redirect(request.referrer)
+
+    post_data = {
+        "url": create_presigned_url(BUCKET_NAME, post.key),
+        "bird_name": post.birdname,
+        "location": decrypt_data(
+            post.location.encode(), request.form.get("password")
+        ).decode(),
+        "id": post.id,
+        "author": post.author,
+        "likes": post.likes,
+    }
+
+    return render_template("bird.html", post_data=post_data)
 
 
 @app.route("/delete_post/<int:post_id>", methods=["POST"])
@@ -197,7 +305,7 @@ def like_post(post_id):
     else:
         post.likes.append(current_user)
         db.session.commit()
-    return redirect(url_for("birds"))
+    return redirect(request.referrer)
 
 
 @app.route("/logout", methods=["GET"])
