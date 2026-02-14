@@ -1,3 +1,4 @@
+import hashlib
 import logging
 import os
 import uuid
@@ -40,9 +41,15 @@ s3 = boto3.client(
 )
 
 
+def create_ip_hash(ip):
+    ip_hash = hashlib.sha256(ip.encode())
+    return ip_hash.hexdigest()
+
+
 @app.before_request
 def is_in_blacklist():
-    blocked_ip = BlockedIP.query.filter_by(ip_hash=request.remote_addr).first()
+    ip_hash = create_ip_hash(str(request.remote_addr))
+    blocked_ip = BlockedIP.query.filter_by(ip_hash=ip_hash).first()
     if blocked_ip is not None:
         return redirect(
             "https://kodeksy.com.ua/kriminal_nij_kodeks_ukraini/statja-248.htm"
@@ -206,9 +213,9 @@ def logout():
 def add_to_blacklist():
     ip_form = BlockIPForm()
     if ip_form.validate_on_submit():
-        ip = ip_form.ip.data
+        ip_hash = create_ip_hash(str(request.remote_addr))
 
-        blocked_ip = BlockedIP(ip_hash=ip)
+        blocked_ip = BlockedIP(ip_hash=ip_hash)
         db.session.add(blocked_ip)
         db.session.commit()
 
@@ -224,4 +231,4 @@ def get_ip():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=7777, debug=True)
