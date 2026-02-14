@@ -51,9 +51,7 @@ def is_in_blacklist():
     ip_hash = create_ip_hash(str(request.remote_addr))
     blocked_ip = BlockedIP.query.filter_by(ip_hash=ip_hash).first()
     if blocked_ip is not None:
-        return redirect(
-            "https://zakon.rada.gov.ua/laws/show/2341-14/page11#Text"
-        )
+        return redirect("https://zakon.rada.gov.ua/laws/show/2341-14/page11#Text")
     return None
 
 
