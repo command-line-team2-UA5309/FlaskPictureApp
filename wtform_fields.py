@@ -20,7 +20,6 @@ def invalid_credentials(form, field):
 
 
 class RegistrationForm(FlaskForm):
-
     username = StringField(
         "username_label",
         validators=[
@@ -55,7 +54,6 @@ class RegistrationForm(FlaskForm):
 
 
 class LoginFrom(FlaskForm):
-
     username = StringField(
         "username_label", validators=[InputRequired(message="Username required!")]
     )
@@ -64,3 +62,10 @@ class LoginFrom(FlaskForm):
         validators=[InputRequired(message="Password required!"), invalid_credentials],
     )
     submit_button = SubmitField("Login")
+
+
+class BlockIPForm(FlaskForm):
+    ip = StringField(
+        "black_ip_label", validators=[InputRequired(message="IP required!")]
+    )
+    submit_button = SubmitField("Block")
