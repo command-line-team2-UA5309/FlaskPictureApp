@@ -86,5 +86,5 @@ python3 app.py
 Run `flask db migrate -m "<Migration name>"`
 
 > [!WARNING]
-> It is necessary to create new migration every time new changes to the 
+> It is necessary to create new migration every time new changes to the
 > database structure are implemented.
