@@ -6,14 +6,6 @@
 2. Run `pre-commit install`
 3. Auto-update the config to the latest version `pre-commit autoupdate`
 
-## Load environment variables from .env before running app on server
-
-```bash
-set -o allexport
-source .env set
-set +o allexport
-```
-
 ## Setup for local testing
 
 ### Create virtual environment and install dependencies
@@ -26,27 +18,36 @@ python3 -m venv .venv
 pip install -r requirements.txt
 ```
 
+### Create .env file
+
+Create .env file in the root directory with all the secrets:
+
+```bash
+DB_NAME=""
+DB_PASSWORD=""
+DB_USER=""
+DB_HOST=""
+DB_PORT=""
+
+SECRET_KEY=""
+
+ENDPOINT=""
+S3_ACCESS_KEY=""
+S3_SECRET_KEY=""
+BUCKET_NAME=""
+```
+
+### Load environment variables from .env before running app on server
+
+```bash
+set -o allexport
+source .env set
+set +o allexport
+```
+
 ### Setup database
 
-* Create db
-
-```bash
-sudo -iu postgres psql
-
-postgres=# CREATE DATABASE db_name;
-
-postgres=# CREATE USER username PASSWORD 'password';
-
-postgres=# GRANT ALL PRIVILEGES ON DATABASE db_name TO username;
-
-postgres=# ALTER DATABASE db_name OWNER TO user;
-```
-
-* Run script for setup tables in db
-
-```bash
-python3 init_tables.py 
-```
+Run `flask db upgrade`
 
 ### Setup S3 compatible storage
 
@@ -79,3 +80,11 @@ on step 3
 ```bash
 python3 app.py
 ```
+
+## How to create new migration
+
+Run `flask db migrate -m "<Migration name>"`
+
+> [!WARNING]
+> It is necessary to create new migration every time new changes to the
+> database structure are implemented.
