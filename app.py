@@ -14,6 +14,7 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from flask import Flask, redirect, render_template, request, url_for
 from flask_login import LoginManager, current_user, login_user, logout_user
+from flask_migrate import Migrate
 from passlib.hash import pbkdf2_sha256
 from werkzeug.utils import secure_filename
 
@@ -30,9 +31,8 @@ from wtform_fields import BlockIPForm, LoginFrom, RegistrationForm
 
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
-
-
 app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
+migrate = Migrate(app, db)
 
 db.init_app(app)
 
