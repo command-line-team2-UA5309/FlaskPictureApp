@@ -22,6 +22,7 @@ from config import (
     BUCKET_NAME,
     ENDPOINT,
     S3_ACCESS_KEY,
+    S3_REGION,
     S3_SECRET_KEY,
     SECRET_KEY,
     SQLALCHEMY_DATABASE_URI,
@@ -45,6 +46,7 @@ s3 = boto3.client(
     endpoint_url=ENDPOINT,
     aws_access_key_id=S3_ACCESS_KEY,
     aws_secret_access_key=S3_SECRET_KEY,
+    region_name=S3_REGION,
 )
 
 
