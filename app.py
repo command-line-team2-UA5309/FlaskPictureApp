@@ -23,8 +23,9 @@ from config import (
     ENDPOINT,
     S3_ACCESS_KEY,
     S3_SECRET_KEY,
+    S3_REGION,
     SECRET_KEY,
-    SQLALCHEMY_DATABASE_URI,
+    SQLALCHEMY_DATABASE_URI
 )
 from models import BlockedIP, Post, User, db
 from wtform_fields import BlockIPForm, LoginFrom, RegistrationForm
@@ -45,6 +46,7 @@ s3 = boto3.client(
     endpoint_url=ENDPOINT,
     aws_access_key_id=S3_ACCESS_KEY,
     aws_secret_access_key=S3_SECRET_KEY,
+    region_name=S3_REGION
 )
 
 
