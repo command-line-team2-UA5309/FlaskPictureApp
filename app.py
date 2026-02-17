@@ -57,7 +57,7 @@ def create_ip_hash(ip):
 
 @app.before_request
 def is_in_blacklist():
-    ip_hash = create_ip_hash(str(request.remote_addr))
+    ip_hash = create_ip_hash(str(request.headers.get("X-Real-IP")))
     blocked_ip = BlockedIP.query.filter_by(ip_hash=ip_hash).first()
     if blocked_ip is not None:
         return redirect("https://zakon.rada.gov.ua/laws/show/2341-14/page11#Text")
@@ -321,7 +321,7 @@ def logout():
 def add_to_blacklist():
     ip_form = BlockIPForm()
     if ip_form.validate_on_submit():
-        ip_hash = create_ip_hash(str(request.remote_addr))
+        ip_hash = create_ip_hash(str(ip_form.ip.data))
 
         blocked_ip = BlockedIP(ip_hash=ip_hash)
         db.session.add(blocked_ip)
